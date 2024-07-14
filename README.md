@@ -8,9 +8,10 @@
 Simplify color picking with an intuitive interface designed to boost productivity for designers, developers, and creators alike.
 
 
-## Installation
 
-### Using Git
+### Installation
+
+#### Using Git
 ```
 git clone https://github.com/fr0st-iwnl/XPicker.git
 ```
