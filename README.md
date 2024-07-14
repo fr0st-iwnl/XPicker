@@ -1,6 +1,6 @@
 # XPicker 🌈
 
-[![GitHub release]()](https://github.com/fr0st-iwnl/XPicker/releases)
+[![GitHub release](https://img.shields.io/badge/Release-1.0-yellow)](https://github.com/fr0st-iwnl/XPicker/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MIT)
 
 <img align="right" width="200" src="https://raw.githubusercontent.com/fr0st-iwnl/assets/main/thumbnails/XPicker.png">
