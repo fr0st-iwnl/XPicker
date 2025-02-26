@@ -13,7 +13,7 @@ Hotkey, ^RButton, CatchColor ; RGB
 Hotkey, Esc, Exit  ; Assigning Esc key to Exit subroutine
 
 ; Initiation
-Traytip, xcolor:, RIGHTCLICK to copy HEX value`nAdd CTRL for RGB value, 5
+Traytip, XPicker:, RIGHTCLICK to copy HEX value`nAdd CTRL for RGB value, 5
 SetSystemCursor("IDC_CROSS") ; Set the cursor to IDC_CROSS
 RestoreCursorsOnExit := true ; Flag to restore cursors on exit
 
