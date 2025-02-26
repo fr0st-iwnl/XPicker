@@ -66,7 +66,7 @@ else
     Clipboard := OutColor
 }
 
-Traytip, xcolor:, % OutMsg " picked"
+Traytip, XPicker:, % OutMsg " picked"
 RestoreCursors()
 Gui, xcolor:Destroy
 Sleep, 500
