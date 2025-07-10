@@ -104,7 +104,7 @@ UpdateMagnifier(x, y, currentColor, colorValue) {
         magnifierY := screenHeight - magnifierSize
     
     screenDC := DllCall("GetDC", "Ptr", 0, "Ptr")
-    DllCall("gdi32\SetStretchBltMode", "Ptr", memDC, "Int", 4)
+    DllCall("gdi32\SetStretchBltMode", "Ptr", memDC, "Int", 3)  ; COLORONCOLOR (3) for better quality
     
     DllCall("gdi32\BitBlt"
         , "Ptr", memDC
@@ -156,15 +156,48 @@ UpdateMagnifier(x, y, currentColor, colorValue) {
     scaledX := (relativeX * destWidth) / sourceSize + borderWidth
     scaledY := (relativeY * destHeight) / sourceSize + borderWidth
     
-    blackPen := DllCall("CreatePen", "Int", 0, "Int", 1, "UInt", 0x000000, "Ptr")
+    ; Draw crosshair at the actual cursor position
+    ; First draw white outline crosshair
+    whitePen := DllCall("CreatePen", "Int", 0, "Int", 5, "UInt", 0xFFFFFF, "Ptr")
+    oldPen := DllCall("SelectObject", "Ptr", memDC, "Ptr", whitePen)
+
+    ; Draw horizontal white line
+    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", borderWidth, "Int", scaledY, "Ptr", 0)
+    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX - 8, "Int", scaledY)
+
+    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX + 8, "Int", scaledY, "Ptr", 0)
+    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", destWidth, "Int", scaledY)
+
+    ; Draw vertical white line
+    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", borderWidth, "Ptr", 0)
+    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", scaledY - 8)
+
+    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", scaledY + 8, "Ptr", 0)
+    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", destHeight)
+
+    ; Clean up white pen
+    DllCall("SelectObject", "Ptr", memDC, "Ptr", oldPen)
+    DllCall("DeleteObject", "Ptr", whitePen)
+
+    ; Now draw black inner crosshair
+    blackPen := DllCall("CreatePen", "Int", 0, "Int", 3, "UInt", 0x000000, "Ptr")
     oldPen := DllCall("SelectObject", "Ptr", memDC, "Ptr", blackPen)
-    
-    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX - 15, "Int", scaledY, "Ptr", 0)
-    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX + 15, "Int", scaledY)
-    
-    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", scaledY - 15, "Ptr", 0)
-    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", scaledY + 15)
-    
+
+    ; Draw horizontal black line
+    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", borderWidth + 1, "Int", scaledY, "Ptr", 0)
+    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX - 8, "Int", scaledY)
+
+    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX + 8, "Int", scaledY, "Ptr", 0)
+    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", destWidth - 1, "Int", scaledY)
+
+    ; Draw vertical black line
+    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", borderWidth + 1, "Ptr", 0)
+    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", scaledY - 8)
+
+    DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", scaledY + 8, "Ptr", 0)
+    DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", destHeight - 1)
+
+    ; Clean up black pen
     DllCall("SelectObject", "Ptr", memDC, "Ptr", oldPen)
     DllCall("DeleteObject", "Ptr", blackPen)
     
