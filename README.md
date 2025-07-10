@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="http://xpicker.netlify.app" target="_blank"><img src="https://github.com/user-attachments/assets/089f1b17-4bee-453c-81bd-b6d85213dab8" alt="XPicker" width="900"></a>
+  <a href="http://xpickerapp.netlify.app" target="_blank"><img src="https://github.com/user-attachments/assets/089f1b17-4bee-453c-81bd-b6d85213dab8" alt="XPicker" width="900"></a>
 </h1>
 <p align="center"><strong>🌈 Lightweight, simple, and easy-to-use screen color picker.</strong></p>
 
