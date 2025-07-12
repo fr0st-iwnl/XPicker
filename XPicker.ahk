@@ -21,7 +21,7 @@
 
 
 ; Global variables :)
-magnificationFactor := 5
+magnificationFactor := 9
 magnifierSize := 150
 colorBoxSize := 60
 borderWidth := 0
@@ -52,7 +52,7 @@ magnifierGui.Show("w" . magnifierSize . " h" . magnifierSize . " Hide")
 
 ; Hotkeys
 RButton::CatchColor()
-^RButton::CatchColor()  ; Same behavior as regular right-click
+^RButton::CatchColor()
 Esc::ExitApp()
 
 Loop {
@@ -60,6 +60,7 @@ Loop {
     CoordMode("Pixel", "Screen")
     MouseGetPos(&x, &y)
     
+    ; get the exact pixel color under the cursor
     color := PixelGetColor(x, y, "RGB")
     color := "0x" . SubStr(color, 3)
     
@@ -115,6 +116,12 @@ UpdateMagnifier(x, y, currentColor, colorValue) {
         , "UInt", 0x00FFFFFF)
     
     sourceSize := magnifierSize // magnificationFactor
+    
+    ; ensure sourceSize is odd for perfect centering
+    if (Mod(sourceSize, 2) == 0)
+        sourceSize += 1
+        
+    ; make sure the cursor is exactly in the center of the captured area
     sourceX := x - (sourceSize // 2)
     sourceY := y - (sourceSize // 2)
     
@@ -149,55 +156,96 @@ UpdateMagnifier(x, y, currentColor, colorValue) {
         , "Int", sourceX, "Int", sourceY
         , "Int", sourceSize, "Int", sourceSize
         , "UInt", 0x00CC0020)
+    
+    ; calculate the exact center of the magnified area
+    ; when at screen edges adjust the position to match the actual cursor position
+    scaledX := destWidth / 2 + borderWidth
+    scaledY := destHeight / 2 + borderWidth
+    
+    if (xOffset != 0 || yOffset != 0) {
+        relativeX := x - sourceX
+        relativeY := y - sourceY
         
-    relativeX := x - sourceX
-    relativeY := y - sourceY
+        scaledX := (relativeX * destWidth) / sourceSize + borderWidth
+        scaledY := (relativeY * destHeight) / sourceSize + borderWidth
+    }
     
-    scaledX := (relativeX * destWidth) / sourceSize + borderWidth
-    scaledY := (relativeY * destHeight) / sourceSize + borderWidth
+    scaledX := Round(scaledX)
+    scaledY := Round(scaledY)
     
-    ; Draw crosshair at the actual cursor position
-    ; First draw white outline crosshair
+    ; white border for dot
+    whiteBorderSize := 4
+    whitePen := DllCall("CreatePen", "Int", 0, "Int", 1, "UInt", 0xFFFFFF, "Ptr")
+    whiteBrush := DllCall("CreateSolidBrush", "UInt", 0xFFFFFF, "Ptr")
+    oldPen := DllCall("SelectObject", "Ptr", memDC, "Ptr", whitePen)
+    oldBrush := DllCall("SelectObject", "Ptr", memDC, "Ptr", whiteBrush)
+    
+    DllCall("Ellipse", "Ptr", memDC, 
+            "Int", scaledX - whiteBorderSize, "Int", scaledY - whiteBorderSize, 
+            "Int", scaledX + whiteBorderSize, "Int", scaledY + whiteBorderSize)
+    
+    DllCall("SelectObject", "Ptr", memDC, "Ptr", oldPen)
+    DllCall("SelectObject", "Ptr", memDC, "Ptr", oldBrush)
+    DllCall("DeleteObject", "Ptr", whitePen)
+    DllCall("DeleteObject", "Ptr", whiteBrush)
+    
+    ; black dot
+    centerSize := 3
+    blackPen := DllCall("CreatePen", "Int", 0, "Int", 1, "UInt", 0x000000, "Ptr")
+    centerBrush := DllCall("CreateSolidBrush", "UInt", 0x000000, "Ptr") ; Black center
+    oldPen := DllCall("SelectObject", "Ptr", memDC, "Ptr", blackPen)
+    oldBrush := DllCall("SelectObject", "Ptr", memDC, "Ptr", centerBrush)
+    
+    DllCall("Ellipse", "Ptr", memDC, 
+            "Int", scaledX - centerSize, "Int", scaledY - centerSize, 
+            "Int", scaledX + centerSize, "Int", scaledY + centerSize)
+    
+    DllCall("SelectObject", "Ptr", memDC, "Ptr", oldPen)
+    DllCall("SelectObject", "Ptr", memDC, "Ptr", oldBrush)
+    DllCall("DeleteObject", "Ptr", blackPen)
+    DllCall("DeleteObject", "Ptr", centerBrush)
+    
+    ; white border crosshair
     whitePen := DllCall("CreatePen", "Int", 0, "Int", 5, "UInt", 0xFFFFFF, "Ptr")
     oldPen := DllCall("SelectObject", "Ptr", memDC, "Ptr", whitePen)
 
-    ; Draw horizontal white line
+    ; horizontal white line
     DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", borderWidth, "Int", scaledY, "Ptr", 0)
     DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX - 8, "Int", scaledY)
 
     DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX + 8, "Int", scaledY, "Ptr", 0)
     DllCall("gdi32\LineTo", "Ptr", memDC, "Int", destWidth, "Int", scaledY)
 
-    ; Draw vertical white line
+    ; vertical white line
     DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", borderWidth, "Ptr", 0)
     DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", scaledY - 8)
 
     DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", scaledY + 8, "Ptr", 0)
     DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", destHeight)
 
-    ; Clean up white pen
+    ; clean up white pen
     DllCall("SelectObject", "Ptr", memDC, "Ptr", oldPen)
     DllCall("DeleteObject", "Ptr", whitePen)
 
-    ; Now draw black inner crosshair
+    ; black crosshair
     blackPen := DllCall("CreatePen", "Int", 0, "Int", 3, "UInt", 0x000000, "Ptr")
     oldPen := DllCall("SelectObject", "Ptr", memDC, "Ptr", blackPen)
 
-    ; Draw horizontal black line
+    ; horizontal black line
     DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", borderWidth + 1, "Int", scaledY, "Ptr", 0)
     DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX - 8, "Int", scaledY)
 
     DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX + 8, "Int", scaledY, "Ptr", 0)
     DllCall("gdi32\LineTo", "Ptr", memDC, "Int", destWidth - 1, "Int", scaledY)
 
-    ; Draw vertical black line
+    ; vertical black line
     DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", borderWidth + 1, "Ptr", 0)
     DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", scaledY - 8)
 
     DllCall("gdi32\MoveToEx", "Ptr", memDC, "Int", scaledX, "Int", scaledY + 8, "Ptr", 0)
     DllCall("gdi32\LineTo", "Ptr", memDC, "Int", scaledX, "Int", destHeight - 1)
 
-    ; Clean up black pen
+    ; clean up black pen
     DllCall("SelectObject", "Ptr", memDC, "Ptr", oldPen)
     DllCall("DeleteObject", "Ptr", blackPen)
     
