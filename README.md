@@ -48,15 +48,21 @@ but you'll need to install **AutoHotkey v2.0** to run it manually.
 
 ## 📸 Showcase
 
-<table >
+<!---
+<table>
     <tr>
       <td>
         <p align="left"><b><em>[❗]</b> This showcase uses <b>Version 1.1</b>, so some things may be different now.</em></p>
       </td>
     </tr>
   </table>
+---->
 
-https://github.com/user-attachments/assets/737bffcc-06cb-4b4e-ad99-01e1b9262762
+
+
+https://github.com/user-attachments/assets/a82207b6-f0b9-432e-a3d2-008d62a45a6b
+
+
 
 
 ## 🤝 Contributions 
