@@ -29,15 +29,16 @@ but you'll need to install **AutoHotkey v2.0** to run it manually.
 <details>
 <summary>🎨 Supported Color Formats</summary>
 
-### Formats
+#### * 💡 **Tip:** Press `CTRL` to cycle through the different color formats.  
+#### * ❌ Press `ESC` to leave the script.
+
+### 📘 Formats
 - **HEX** — `#RRGGBB` (hexadecimal color code)  
 - **RGB** — `rgb(R, G, B)` (red, green, blue numeric values)  
 - **RGBA** — `rgba(R, G, B, A)` (red, green, blue + alpha/transparency)  
 - **HSL** — `hsl(H°, S%, L%)` (hue, saturation, lightness)  
-- **HSLA** — `hsla(H°, S%, L%, A)` (hue, saturation, lightness + alpha)  
-
+- **HSLA** — `hsla(H°, S%, L%, A)` (hue, saturation, lightness + alpha)
 </details>
-
 
 ## 📊 Resource Usage
 
